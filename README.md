@@ -10,7 +10,7 @@ Note: this is an integration demo for personal use, so features may fail/be inco
 
 ## Features
 
-- **Ready-to-use LottieAnimation node**: Drop-in Godot node for seamless Lottie integration in your scenes
+- **Ready-to-use LottieAnimation**: Drop-in Godot node for seamless Lottie integration in your scenes
 - **Hybrid CPU-GPU rendering**: ThorVG rasterizes vector data to RGBA8888 format in CPU memory, then converts to RGB texture for Godot's draw system
 - **Multi-threaded rendering**: Parallel processing using all available CPU cores
 - **SIMD optimizations**: AVX/SSE (x86/x64) or NEON (ARM) vectorization
