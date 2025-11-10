@@ -110,9 +110,9 @@ thorvg-godot/
 
 ## API Reference
 
-Detailed API documentation for the provided nodes and resources is available in `API.md` in this repository. It includes the `LottieAnimation` node reference (properties, methods, signals) and usage examples in GDScript.
+Detailed API documentation for the provided nodes and resources is available in this repository. It includes the `LottieAnimation` node reference (properties, methods, signals) and usage examples in GDScript.
 
-See: `API.md` for a complete and up-to-date reference.
+See: **[API.md](API.md)** for a complete and up-to-date reference.
 
 ## Performance Tips
 
