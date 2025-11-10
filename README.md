@@ -138,14 +138,16 @@ thorvg-godot/
 │   ├── lottie_animation.cpp # Main animation class
 │   ├── lottie_animation.h   # Header file
 │   └── register_types.cpp   # Godot registration
+├── demo/                    # Example project with plugin
+│   └── addons/
+│       └── godot_lottie/    # ← Plugin folder to copy to your project
 ├── thirdparty/thorvg/       # ThorVG submodule
-├── demo/                    # Example project
 └── godot-cpp/               # Godot C++ bindings
 ```
 
 ## Usage
 
-1. **Copy the extension**: Copy the built extension to your Godot project's `addons/` folder
+1. **Copy the plugin**: Copy the `demo/addons/godot_lottie/` folder to your Godot project's `addons/` directory
 2. **Enable the plugin**: Go to Project → Project Settings → Plugins and enable "Godot Lottie"
 3. **Add LottieAnimation node**: Add `LottieAnimation` nodes to your scene
 4. **Set animation path**: Set the `animation_path` property to your Lottie JSON file
