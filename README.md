@@ -2,6 +2,10 @@
 
 High-performance Lottie animation rendering for Godot Engine using optimized ThorVG backend.
 
+![ThorVG Godot Demo](demo/demo-preview.gif)
+
+*Lottie animations running at 146 FPS with ThorVG's optimized multi-threaded rendering*
+
 Note: this is an integration demo for personal use, so features may fail/be incomplete and may not perform as expected.
 
 ## Features
