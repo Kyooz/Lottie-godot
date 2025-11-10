@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3 uid="uid://cw2x5y8kcwxf2"]
+
+[ext_resource type="Script" path="res://addons/godot_lottie/ui/lottie_inspector_header.gd" id="1"]
+
+[node name="LottieInspectorHeader" type="VBoxContainer"]
+script = ExtResource("1")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Lottie Animation"
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="."]
+layout_mode = 2
+columns = 2
+
+[node name="AnimLabel" type="Label" parent="Grid"]
+layout_mode = 2
+text = "Animation"
+
+[node name="AnimSelect" type="OptionButton" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StateLabel" type="Label" parent="Grid"]
+layout_mode = 2
+text = "State Machine"
+
+[node name="StateSelect" type="OptionButton" parent="Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Controls" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Play" type="Button" parent="Controls"]
+layout_mode = 2
+text = "Play"

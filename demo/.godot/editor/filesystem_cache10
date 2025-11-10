@@ -1,0 +1,47 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1762747101
+export_presets.cfg::TextFile::-1::1762727132::0::1::::<><><>0<>0<><>::
+::res://addons/::1762727404
+::res://addons/assets/::1762717564
+64.png::CompressedTexture2D::3685129629073531022::1750469872::1762717564::1::::<><><>0<>0<>0784d021599d413160546a4c99268dca<>res://.godot/imported/64.png-2dc169686cb412d5cc8392ff4b356d9a.ctex::
+64block.png::CompressedTexture2D::9106930194940070881::1750469872::1762717564::1::::<><><>0<>0<>a92342d0d9b3d767268631f87e12bb25<>res://.godot/imported/64block.png-9fa1bb5f86f24c48acf0f4d369c51a80.ctex::
+ignoravel.png::CompressedTexture2D::106352231947269444::1750469872::1762717564::1::::<><><>0<>0<>c1e767db4a51fdf23917f6c3f92c0780<>res://.godot/imported/ignoravel.png-aa5e361e7a9f0714fba7a8cfd73f44a9.ctex::
+::res://addons/debug_menu/::1762371983
+debug_menu.gd::GDScript::8396911553645214064::1762371983::0::1::::<>CanvasLayer<><>0<>0<><>::
+debug_menu.tscn::PackedScene::153156931780978323::1762371983::0::1::::<><><>0<>0<><>::res://addons/debug_menu/debug_menu.gd
+LICENSE.md::TextFile::-1::1762371983::0::1::::<><><>0<>0<><>::
+plugin.cfg::TextFile::-1::1762371983::0::1::::<><><>0<>0<><>::
+plugin.gd::GDScript::1756561760345956501::1762371983::0::1::::<>EditorPlugin<><>0<>1<><>::
+::res://addons/godot_lottie/::1762746675
+godot_lottie.gdextension::GDExtension::6859816749906814053::1762454018::0::1::::<><><>0<>0<><>::
+lottie_animation_script.gd::GDScript::7797230137644806897::1762410611::0::1::::LottieAnimationWrapper<>Node2D<><>0<>1<><>::
+lottie_editor_plugin.gd::GDScript::5939365397223216963::1762747023::0::1::::<>EditorPlugin<><>0<>1<><>::
+lottie_inspector_plugin.gd::GDScript::3802132182377595438::1762367097::0::1::::<>EditorInspectorPlugin<><>0<>1<><>::
+lottie_pivot_gizmo.gd::GDScript::5532908118367859598::1762746842::0::1::::<>EditorPlugin<><>0<>1<><>::
+plugin.cfg::TextFile::-1::1762367019::0::1::::<><><>0<>0<><>::
+::res://addons/godot_lottie/bin/::1762747102
+::res://addons/godot_lottie/demo/::1762744552
+Rectangle 1.png::CompressedTexture2D::3053447383214365990::1762664025::1762664101::1::::<><><>0<>0<>1e74ea80a84d22cacd7e7419ffe6036e<>res://.godot/imported/Rectangle 1.png-b83760165de9afd34aef7a685794b7b8.ctex::
+renderingDemo.tscn::PackedScene::5352737542063271341::1762744552::0::1::::<><><>0<>0<><>::uid://brxspsvvx28md::::res://addons/godot_lottie/scripts/editor.gd<>uid://bjrd3kehqendm::::res://addons/godot_lottie/demo/Rectangle 1.png
+stressDemo.tscn::PackedScene::7336204201191438604::1762661410::0::1::::<><><>0<>0<><>::uid://ba2b8edbsx2u6::::res://addons/godot_lottie/scripts/stress_demo.gd
+::res://addons/godot_lottie/icons/::1762552444
+LottieAnimation.svg::CompressedTexture2D::1117625150187016991::1762406934::1762552444::1::::<><><>0<>0<>400ca1fe76211587652e58fdea93faa0<>res://.godot/imported/LottieAnimation.svg-d8d8568d837caa16d191e22ff0ba95b1.ctex::
+::res://addons/godot_lottie/lotties/::1762551211
+Christmas Tree Animation - 1699891737968.json::JSON::-1::1762371709::0::1::::<><><>0<>0<><>::
+Godot funny.json::JSON::-1::1762375604::0::1::::<><><>0<>0<><>::
+Happy snowman jumping and waving his hand.json::JSON::-1::1762375604::0::1::::<><><>0<>0<><>::
+Loader animation.json::JSON::-1::1762371529::0::1::::<><><>0<>0<><>::
+Remix of HalloweenFinalFinal.json::JSON::-1::1762406664::0::1::::<><><>0<>0<><>::
+::res://addons/godot_lottie/scripts/::1762717353
+editor.gd::GDScript::3628232385508570951::1762732386::0::1::::<>Node<><>0<>0<><>::
+editor_backup.gd::GDScript::7952252787777293084::1762670391::0::1::::<>Node<><>0<>0<><>::
+rendering_demo.gd::GDScript::8357395045036873216::1762557831::0::1::::<>Node2D<><>0<>0<><>::
+stress_demo.gd::GDScript::2442278746042582251::1762588340::0::1::::<>Node2D<><>0<>0<><>::
+tile_map.gd::GDScript::847296468473499480::1762717353::0::1::::<>TileMap<><>0<>1<><>::
+::res://addons/godot_lottie/ui/::1762660348
+lottie_dock.gd::GDScript::7713864060606454880::1762660348::0::1::::<>VBoxContainer<><>0<>1<><>::
+lottie_dock.tscn::PackedScene::3557711715809116336::1762660348::0::1::::<><><>0<>0<><>::res://addons/godot_lottie/ui/lottie_dock.gd
+lottie_inspector_header.gd::GDScript::5359828470639033971::1762660348::0::1::::<>VBoxContainer<><>0<>1<><>::
+lottie_inspector_header.tscn::PackedScene::6374185503430171633::1762660348::0::1::::<><><>0<>0<><>::res://addons/godot_lottie/ui/lottie_inspector_header.gd
+::res://addons/scenes/::1762746749
+new_scene.tscn::PackedScene::8745053727468870249::1762746749::0::1::::<><><>0<>0<><>::uid://drcnctd8xykrg::::res://addons/godot_lottie/scripts/rendering_demo.gd<>uid://brxspsvvx28md::::res://addons/godot_lottie/scripts/editor.gd<>uid://bjrd3kehqendm::::res://addons/godot_lottie/demo/Rectangle 1.png

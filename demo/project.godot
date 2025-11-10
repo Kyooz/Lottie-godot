@@ -1,0 +1,46 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Godot Lottie Demo"
+config/description="Demo project for Godot Lottie ThorVG integration"
+config/version="1.0.0"
+run/main_scene="uid://cii52m5pmadwv"
+config/features=PackedStringArray("4.6", "Forward Plus")
+
+[autoload]
+
+DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/vsync/vsync_mode=2
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/godot_lottie/plugin.cfg")
+
+[global_group]
+
+lottie_culling=""
+
+[physics]
+
+common/physics_ticks_per_second=200
+common/enable_object_picking=false
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+environment/defaults/default_clear_color=Color(0.14099121, 0.15108491, 0.1640625, 1)

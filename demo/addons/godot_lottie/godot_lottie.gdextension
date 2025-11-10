@@ -1,0 +1,28 @@
+[configuration]
+
+entry_symbol = "godot_lottie_library_init"
+compatibility_minimum = "4.3"
+reloadable = true
+
+[libraries]
+
+macos.debug = "res://addons/godot_lottie/bin/libgodot_lottie.macos.template_debug.framework"
+macos.release = "res://addons/godot_lottie/bin/libgodot_lottie.macos.template_release.framework"
+windows.debug.x86_32 = "res://addons/godot_lottie/bin/libgodot_lottie.windows.template_debug.x86_32.dll"
+windows.release.x86_32 = "res://addons/godot_lottie/bin/libgodot_lottie.windows.template_release.x86_32.dll"
+windows.debug.x86_64 = "res://addons/godot_lottie/bin/libgodot_lottie.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/godot_lottie/bin/libgodot_lottie.windows.template_release.x86_64.dll"
+linux.debug.x86_64 = "res://addons/godot_lottie/bin/libgodot_lottie.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/godot_lottie/bin/libgodot_lottie.linux.template_release.x86_64.so"
+linux.debug.arm64 = "res://addons/godot_lottie/bin/libgodot_lottie.linux.template_debug.arm64.so"
+linux.release.arm64 = "res://addons/godot_lottie/bin/libgodot_lottie.linux.template_release.arm64.so"
+android.debug.x86_64 = "res://addons/godot_lottie/bin/libgodot_lottie.android.template_debug.x86_64.so"
+android.release.x86_64 = "res://addons/godot_lottie/bin/libgodot_lottie.android.template_release.x86_64.so"
+android.debug.arm64 = "res://addons/godot_lottie/bin/libgodot_lottie.android.template_debug.arm64.so"
+android.release.arm64 = "res://addons/godot_lottie/bin/libgodot_lottie.android.template_release.arm64.so"
+web.debug.wasm32 = "res://addons/godot_lottie/bin/libgodot_lottie.web.template_debug.wasm32.nothreads.wasm"
+web.release.wasm32 = "res://addons/godot_lottie/bin/libgodot_lottie.web.template_release.wasm32.nothreads.wasm"
+
+[icons]
+
+LottieAnimation = "res://addons/godot_lottie/icons/LottieAnimation.svg"

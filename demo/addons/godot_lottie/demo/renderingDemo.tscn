@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://cii52m5pmadwv"]
+
+[ext_resource type="Script" uid="uid://brxspsvvx28md" path="res://addons/godot_lottie/scripts/editor.gd" id="2_xa1qb"]
+[ext_resource type="Texture2D" uid="uid://bjrd3kehqendm" path="res://addons/godot_lottie/demo/Rectangle 1.png" id="3_rrego"]
+
+[node name="Scene" type="Node2D" unique_id=2061255387]
+
+[node name="Rectangle1" type="Sprite2D" parent="." unique_id=892938362]
+self_modulate = Color(1, 1, 1, 0.38431373)
+texture_filter = 2
+position = Vector2(640, 360)
+texture = ExtResource("3_rrego")
+metadata/_edit_lock_ = true
+
+[node name="Editor" type="Node" parent="." unique_id=961854373]
+script = ExtResource("2_xa1qb")
+
+[node name="Assets" type="Node" parent="." unique_id=689383119]

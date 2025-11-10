@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3 uid="uid://dcryhgllao55i"]
+
+[ext_resource type="Script" uid="uid://ba2b8edbsx2u6" path="res://addons/godot_lottie/scripts/stress_demo.gd" id="1_2pdvg"]
+
+[sub_resource type="FontVariation" id="FontVariation_2pdvg"]
+
+[node name="stressDemo" type="Node2D" unique_id=848590818]
+script = ExtResource("1_2pdvg")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=384976328]
+anchor_mode = 0
+process_callback = 0
+
+[node name="LottieAnimation" type="LottieAnimation" parent="." unique_id=1646907431]
+animation_path = "res://addons/godot_lottie/lotties/laughing cat.lottie"
+playing = true
+state/animation = "animation"
+state/machine = ""
+state/state = ""
+process_mode = 3
+position = Vector2(604, 296)
+
+[node name="Count" type="Label" parent="." unique_id=190845112]
+z_index = 4
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 87.0
+offset_bottom = 34.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = SubResource("FontVariation_2pdvg")
+theme_override_font_sizes/font_size = 25
+text = "Lotties count: 1"
+
+[node name="ReferenceRect" type="ReferenceRect" parent="." unique_id=1172697301]
+visible = false
+offset_right = 1273.0
+offset_bottom = 697.0
+editor_only = false

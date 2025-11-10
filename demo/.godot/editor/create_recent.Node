@@ -1,0 +1,14 @@
+LottieAnimation
+Sprite2D
+TileMap
+ColorRect
+GraphEdit
+GridMap
+VisibleOnScreenEnabler2D
+ReferenceRect
+TextureRect
+Node
+VisibleOnScreenNotifier2D
+Label
+Camera2D
+LottieAnimationWrapper
