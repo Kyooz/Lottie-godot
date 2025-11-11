@@ -20,12 +20,14 @@ Note: this is an integration demo for personal use, so features may fail/be inco
 
 ## Quick Demo
 
-**Want to test without building?** The `demo/` folder contains a ready-to-run Godot project:
+**Want to test without building?** The `demo/` folder contains a ready-to-run Godot project with **pre-built binaries for Windows x64**:
 
-1. Open `demo/project.godot` in Godot Engine
+1. Open `demo/project.godot` in Godot Engine 4.3+
 2. **Enable the plugin**: Go to Project → Project Settings → Plugins and enable "Godot Lottie"
 3. Run immediately - no compilation required!
 4. Test multiple Lottie animations and performance demos
+
+> **Note**: For Linux and macOS, you'll need to build the extension first (see Installation section below).
 
 ## Prerequisites
 
