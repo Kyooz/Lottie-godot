@@ -12,31 +12,20 @@ echo.
 REM Check for required build tools
 where meson >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo ERROR: Meson build system not found in PATH
+    echo ERROR: Meson not found in PATH
     echo.
-    echo To install dependencies:
-    echo   1. Install Python 3.7 or later
-    echo   2. Run: pip install meson ninja
-    echo   3. Add Python Scripts directory to system PATH
+    echo Installing and adding to PATH...
+    python -m pip install --user meson ninja
+    
+    REM Add Python Scripts to PATH for current session
+    set "PATH=%PATH%;%APPDATA%\Python\Python313\Scripts"
+    
     echo.
-    echo Example PATH entry:
-    echo   C:\Users\%USERNAME%\AppData\Roaming\Python\Python3XX\Scripts
+    echo Meson installed. If build still fails, restart your terminal.
     echo.
-    pause
-    exit /b 1
 )
 
-where ninja >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo ERROR: Ninja build tool not found in PATH
-    echo.
-    echo To install: pip install ninja
-    echo.
-    pause
-    exit /b 1
-)
-
-echo Build tools verified: Meson and Ninja available
+echo Build tools verified: Meson available
 echo.
 
 REM Navigate to ThorVG directory
@@ -65,7 +54,8 @@ meson setup builddir ^
   -Dbindings=capi ^
   -Dexamples=false ^
   -Dcpp_args="-DTHORVG_THREAD_SUPPORT" ^
-  --backend=ninja
+  --backend=ninja ^
+  --wipe
 
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: Failed to configure build
@@ -77,22 +67,7 @@ REM Build with all available CPU cores
 echo Building ThorVG using %CORES% parallel jobs...
 meson compile -C builddir -j %CORES%
 
-if %ERRORLEVEL% EQU 0 (
-    echo.
-    echo ========================================
-    echo ThorVG build completed successfully
-    echo.
-    echo Output location: thirdparty\thorvg\builddir\src\
-    echo Library file: thorvg-1.dll / thorvg.lib
-    echo.
-    echo Enabled optimizations:
-    echo   - Multi-threading: Task scheduler with %CORES% workers
-    echo   - SIMD instructions: CPU vectorization enabled
-    echo   - Partial rendering: Smart update optimizations
-    echo   - Lottie loader: JSON animation support only
-    echo   - Release mode: Maximum compiler optimizations
-    echo ========================================
-) else (
+if %ERRORLEVEL% NEQ 0 (
     echo.
     echo ERROR: ThorVG build failed
     echo Check the output above for error details
@@ -100,6 +75,21 @@ if %ERRORLEVEL% EQU 0 (
     pause
     exit /b 1
 )
+
+echo.
+echo ========================================
+echo ThorVG build completed successfully
+echo.
+echo Output location: thirdparty\thorvg\builddir\src\
+echo Library file: thorvg-1.dll (shared library)
+echo.
+echo Enabled optimizations:
+echo   - Multi-threading: Task scheduler with %CORES% workers
+echo   - SIMD instructions: CPU vectorization enabled
+echo   - Partial rendering: Smart update optimizations
+echo   - Lottie loader: JSON animation support only
+echo   - Release mode: Maximum compiler optimizations
+echo ========================================
 
 echo.
 echo Build script completed. Ready to build Godot extension.

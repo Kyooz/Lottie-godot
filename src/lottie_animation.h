@@ -17,12 +17,10 @@
 #include <atomic>
 #include "lottie_frame_cache.h"
 
-// Forward declarations for ThorVG
 namespace tvg {
     class SwCanvas;
     class Animation;
     class Picture;
-    // No public LottieAnimation API in installed headers; use Animation::segment(begin,end)
 }
 
 namespace godot {
@@ -31,7 +29,6 @@ class LottieAnimation : public Node2D {
     GDCLASS(LottieAnimation, Node2D)
 
 private:
-    // Animation properties
     String animation_path;
     bool playing;
     bool looping;
@@ -41,62 +38,47 @@ private:
     float total_frames;
     float duration;
     
-    // Rendering
     Ref<ImageTexture> texture;
     Ref<Image> image;
-    PackedByteArray pixel_bytes; // persistent pixel buffer (RGBA8)
-    // Triple-buffering of GPU textures to reduce driver stalls
+    PackedByteArray pixel_bytes;
     std::vector<Ref<ImageTexture>> texture_ring;
     int texture_ring_index = 0;
-    int texture_ring_size = 3; // ring size >= 2 recommended
+    int texture_ring_size = 3;
     Vector2i base_picture_size;
     Vector2i render_size;
-    String animation_key; // used for cache key
-    // dotLottie selection (when animation_path ends with .lottie)
-    String selected_dotlottie_animation; // manifest animations[].id or json path
+    String animation_key;
+    String selected_dotlottie_animation;
     
-    // ThorVG objects
     tvg::SwCanvas* canvas;
     tvg::Animation* animation;
     tvg::Picture* picture;
     uint32_t* buffer;
     
-    // Sizing & resolution policies
     bool use_animation_size;
     bool fit_into_box;
     Vector2i fit_box_size;
     bool dynamic_resolution;
     float resolution_threshold;
     Vector2i max_render_size;
-    // Always render first frame when not playing (static preview / SVG usage)
-    // (previous render_when_idle flag removed; behavior now unconditional)
-    // Performance/cache options
     bool frame_cache_enabled = false;
-    int frame_cache_budget_mb = 256; // total shared budget
-    int frame_cache_step = 1; // quantize frames to this step (frames)
-    int engine_option = 1; // 0: Default, 1: SmartRender (HIGH PERFORMANCE DEFAULT)
-    // Only use frame cache when not actively playing (avoid stalls during playback)
-    // Janitor-style: rely on incremental updates rather than frame texture caching while animating.
+    int frame_cache_budget_mb = 256;
+    int frame_cache_step = 1;
+    int engine_option = 1;
     bool cache_only_when_paused = true;
-    // Live cache during playback when many identical instances exist.
-    int live_cache_threshold = 4;           // instances needed to activate live cache for this key
-    bool live_cache_force = false;          // override threshold
-    bool live_cache_active = false;         // computed per key
+    int live_cache_threshold = 4;
+    bool live_cache_force = false;
+    bool live_cache_active = false;
 
-    // Culling configuration
-    // Culling removed (legacy fields kept minimal to avoid ABI break but unused)
-    int culling_mode = 2; // Always
+    int culling_mode = 2;
     float culling_margin_px = 0.0f;
 
-    // Worker-threaded rendering (Janitor-like pipeline): render ThorVG on a worker, upload on main.
     bool render_thread_enabled = true;
     std::thread render_thread;
     std::mutex job_mutex;
     std::condition_variable job_cv;
     bool worker_stop = false;
-    // Separate pending states to avoid overwriting LOAD with RENDER
     bool load_pending = false;
-    std::string pending_path8; // absolute UTF-8 path or empty to clear
+    std::string pending_path8;
     bool render_pending = false;
     Vector2i pending_r_size;
     float pending_r_frame = 0.0f;
@@ -106,13 +88,11 @@ private:
     int last_rendered_qf = -1;
     int last_posted_qf = -1;
     Vector2i last_posted_size = Vector2i(0,0);
-    bool last_visible_on_screen = false; // start as not visible to force first-time post when it becomes visible
+    bool last_visible_on_screen = false;
     bool first_frame_drawn = false;
 
-    // (Replaced single pending_job with distinct pending flags/fields above)
-
     struct FrameResult {
-        std::vector<uint8_t> rgba; // RGBA8
+        std::vector<uint8_t> rgba;
         int w = 0;
         int h = 0;
         uint64_t id = 0;
@@ -120,46 +100,38 @@ private:
     } latest_frame;
     std::mutex frame_mutex;
 
-    // Worker thread ThorVG resources
     tvg::SwCanvas* w_canvas = nullptr;
     tvg::Animation* w_animation = nullptr;
     tvg::Picture* w_picture = nullptr;
-    uint32_t* w_buffer = nullptr; // ARGB
+    uint32_t* w_buffer = nullptr;
     Vector2i w_render_size = Vector2i(0,0);
     Vector2i w_base_picture_size = Vector2i(0,0);
-    // Debug/housekeeping for dynamic resolution
     float last_effective_scale = 0.0f;
     Vector2i last_desired_size = Vector2i(0, 0);
     bool pending_resize = false;
     Vector2i pending_target_size = Vector2i(0, 0);
     bool rendering = false;
-    // Resize thrash control
     double _elapsed_time = 0.0;
     double _last_resize_at = -1.0;
-    float _min_resize_interval = 0.10f; // seconds between reallocations
-    bool _uploaded_this_frame = false;   // for redraw gating
-    int _last_drawn_qf = -1;            // track when visual changed
+    float _min_resize_interval = 0.10f;
+    bool _uploaded_this_frame = false;
+    int _last_drawn_qf = -1;
 
-    // Edge artifact mitigation
-    bool fix_alpha_border = true; // bleed neighbor color into fully transparent border to avoid dark fringes
-    bool unpremultiply_alpha = true; // convert PMA -> straight to avoid dark halos during filtering
+    bool fix_alpha_border = true;
+    bool unpremultiply_alpha = false;
 
-    // Offset between Node2D origin and drawn image center. Allows pivot for YSort without moving visuals.
-    // Example: offset = Vector2(0, box_height/2) places Node2D position at bottom-center ("foot pivot").
     Vector2 offset = Vector2();
 
-    // dotLottie manifest/state machine info (for inspector selectors)
-    String last_lottie_zip_path; // original .lottie path if loaded
-    PackedStringArray sm_animation_ids; // available animation ids/names
-    PackedStringArray sm_machine_names; // available state machine names
-    Dictionary sm_states_by_machine; // String => PackedStringArray
-    Dictionary sm_anim_inner_paths; // animation id => inner json path in zip
-    Dictionary sm_state_segments_by_machine; // String (machine) => Dictionary(state => segment)
+    String last_lottie_zip_path;
+    PackedStringArray sm_animation_ids;
+    PackedStringArray sm_machine_names;
+    Dictionary sm_states_by_machine;
+    Dictionary sm_anim_inner_paths;
+    Dictionary sm_state_segments_by_machine;
     String active_animation_id;
     String active_state_machine;
     String active_state;
 
-    // Internal methods
     void _initialize_thorvg();
     void _cleanup_thorvg();
     bool _load_animation(const String& path);
@@ -176,13 +148,11 @@ private:
     void _ensure_cache_capacity();
     bool _is_visible_on_screen() const;
     void _recompute_live_cache_state();
-    // dotLottie helpers
     void _parse_dotlottie_manifest(const String &zip_path);
     String _extract_json_from_lottie_to_cache(const String &zip_path, const String &inner_path, const String &suffix_key);
     void _apply_selected_state_segment();
     String _current_state_segment_marker() const;
     bool _find_marker_range(const String &json_path, const String &marker, float &out_begin, float &out_end) const;
-    // Worker helpers
     void _start_worker_if_needed();
     void _stop_worker();
     void _post_load_to_worker(const String& path);
@@ -192,19 +162,15 @@ private:
     void _worker_free_resources();
     void _worker_apply_target_if_needed(const Vector2i &size);
     void _worker_apply_fit_transform();
-    // Postprocess helpers
     void _fix_alpha_border_rgba(uint8_t *rgba, int w, int h);
     void _unpremultiply_alpha_rgba(uint8_t *rgba, int w, int h);
 
-    // Worker control flags
     bool segment_pending = false;
     float pending_segment_begin = 0.0f;
     float pending_segment_end = 0.0f;
 
-
 protected:
     static void _bind_methods();
-    // Dynamic inspector properties for state machine selectors
     void _get_property_list(List<PropertyInfo> *p_list) const;
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -213,13 +179,11 @@ public:
     LottieAnimation();
     ~LottieAnimation();
 
-    // Godot lifecycle
     void _ready() override;
     void _process(double delta) override;
     void _draw() override;
     void _notification(int32_t p_what);
 
-    // Animation control
     void play();
     void stop();
     void pause();
@@ -227,7 +191,6 @@ public:
     void set_frame(float frame);
     float get_frame() const;
     
-    // Properties getters/setters
     void set_animation_path(const String& path);
     String get_animation_path() const;
     void set_selected_dotlottie_animation(const String &id);
@@ -242,7 +205,6 @@ public:
     void set_autoplay(bool p_autoplay);
     bool is_autoplay() const;
     
-    // New policy properties
     void set_use_animation_size(bool p_enable);
     bool is_using_animation_size() const;
 
@@ -274,8 +236,7 @@ public:
     int get_culling_mode() const;
     void set_culling_margin_px(float p_margin);
     float get_culling_margin_px() const;
-    // Removed render_when_idle property; static rendering is unconditional now.
-
+    
     void set_speed(float p_speed);
     float get_speed() const;
     
@@ -284,14 +245,12 @@ public:
     
     float get_duration() const;
     float get_total_frames() const;
-    // Render first frame (or current frame) immediately when idle (not playing)
     void render_static();
     
-    // Offset control for YSort pivot without moving the drawing
     void set_offset(const Vector2 &p_offset);
     Vector2 get_offset() const;
 };
 
 }
 
-#endif // LOTTIE_ANIMATION_H
+#endif

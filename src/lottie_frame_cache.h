@@ -29,7 +29,6 @@ private:
         }
         struct Hasher {
             size_t operator()(const Key &k) const {
-                // Simple hash combine
                 std::hash<std::string> hs;
                 size_t h1 = hs(std::string(k.anim.utf8().get_data()));
                 size_t h2 = ((size_t)k.frame << 1) ^ ((size_t)k.w << 17) ^ ((size_t)k.h << 29);
@@ -41,19 +40,18 @@ private:
     struct Entry {
         Ref<ImageTexture> tex;
         size_t bytes = 0;
-        std::list<Key>::iterator lru_it; // position in LRU list
+        std::list<Key>::iterator lru_it;
     };
 
-    // LRU structures
     std::unordered_map<Key, Entry, Key::Hasher> _map;
     std::list<Key> _lru;
-    size_t _capacity = 256 * 1024 * 1024; // 256 MB default
+    size_t _capacity = 256 * 1024 * 1024;
     size_t _used = 0;
 
     void _touch(const Key &key);
     void _evict_if_needed();
 };
 
-} // namespace godot
+}
 
-#endif // LOTTIE_FRAME_CACHE_H
+#endif

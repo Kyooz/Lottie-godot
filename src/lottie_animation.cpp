@@ -21,12 +21,8 @@
 
 using namespace godot;
 
-// ------- Optimized ARGB -> RGBA conversion (SIMD when available) -------
-// We receive ThorVG's software raster buffer in ARGB8888 and need RGBA8 for Godot.
-// Hot path: executed every rendered frame; optimize with SSSE3 or NEON when present.
-
 #if defined(__SSSE3__)
-    #include <tmmintrin.h>   // _mm_shuffle_epi8
+    #include <tmmintrin.h>
     #define LOTTIE_SIMD_SSSE3 1
 #endif
 #if defined(__ARM_NEON)
@@ -36,14 +32,12 @@ using namespace godot;
 
 static inline void _convert_argb_to_rgba_optimized(const uint32_t *src, uint8_t *dst, size_t count) {
 #if LOTTIE_SIMD_SSSE3
-    // Process 4 pixels (16 bytes) per iteration.
-    size_t vec_count = count / 4; // number of 128-bit lanes
-    // Shuffle mask mapping ARGB bytes to RGBA order for 4 pixels.
+    size_t vec_count = count / 4;
     const __m128i mask = _mm_setr_epi8(
-        2, 1, 0, 3,    // Pixel 0: B G R A -> R G B A (ARGB->RGBA reorder)
-        6, 5, 4, 7,    // Pixel 1
-        10, 9, 8, 11,  // Pixel 2
-        14, 13, 12, 15 // Pixel 3
+        2, 1, 0, 3,
+        6, 5, 4, 7,
+        10, 9, 8, 11,
+        14, 13, 12, 15
     );
     const __m128i *srcv = reinterpret_cast<const __m128i*>(src);
     __m128i *dstv = reinterpret_cast<__m128i*>(dst);
@@ -52,19 +46,16 @@ static inline void _convert_argb_to_rgba_optimized(const uint32_t *src, uint8_t 
         __m128i shuffled = _mm_shuffle_epi8(pixels, mask);
         _mm_storeu_si128(&dstv[i], shuffled);
     }
-    // Tail pixels (scalar)
     size_t processed = vec_count * 4;
     for (size_t i = processed; i < count; ++i) {
         uint32_t p = src[i];
-        dst[i*4 + 0] = (uint8_t)((p >> 16) & 0xFF); // R
-        dst[i*4 + 1] = (uint8_t)((p >> 8) & 0xFF);  // G
-        dst[i*4 + 2] = (uint8_t)(p & 0xFF);         // B
-        dst[i*4 + 3] = (uint8_t)((p >> 24) & 0xFF); // A
+        dst[i*4 + 0] = (uint8_t)((p >> 16) & 0xFF);
+        dst[i*4 + 1] = (uint8_t)((p >> 8) & 0xFF);
+        dst[i*4 + 2] = (uint8_t)(p & 0xFF);
+        dst[i*4 + 3] = (uint8_t)((p >> 24) & 0xFF);
     }
 #elif LOTTIE_SIMD_NEON
-    // NEON path: operate on 4 pixels (16 bytes) per iteration.
     size_t vec_count = count / 4;
-    // Lookup table for ARGB -> RGBA swizzle.
     static const uint8_t tbl_data[16] = {
         2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15
     };
@@ -74,7 +65,6 @@ static inline void _convert_argb_to_rgba_optimized(const uint32_t *src, uint8_t 
 #if defined(__aarch64__) || defined(__ARM_FEATURE_QBIT)
         uint8x16_t shuffled = vqtbl1q_u8(pixels, tbl);
 #else
-        // Fallback per-byte on older NEON without vqtbl1q_u8
         uint8_t tmp[16];
         vst1q_u8(tmp, pixels);
         uint8_t out[16];
@@ -93,7 +83,6 @@ static inline void _convert_argb_to_rgba_optimized(const uint32_t *src, uint8_t 
         dst[i*4 + 3] = (uint8_t)((p >> 24) & 0xFF);
     }
 #else
-    // Scalar fallback.
     for (size_t i = 0; i < count; ++i) {
         uint32_t p = src[i];
         dst[i*4 + 0] = (uint8_t)((p >> 16) & 0xFF);
@@ -104,11 +93,8 @@ static inline void _convert_argb_to_rgba_optimized(const uint32_t *src, uint8_t 
 #endif
 }
 
-// Bleed edge colors into fully transparent pixels to avoid dark fringes when filtering.
 void LottieAnimation::_fix_alpha_border_rgba(uint8_t *rgba, int w, int h) {
     if (!rgba || w <= 2 || h <= 2) return;
-    // One-pass 8-neighborhood copy for A==0 pixels bordering A>0 neighbors.
-    // Work on a copy of RGB to avoid cascading within a single pass.
     std::vector<uint8_t> rgb_copy((size_t)w * (size_t)h * 3);
     for (int y = 0; y < h; ++y) {
         const uint8_t *row = rgba + (size_t)y * (size_t)w * 4;
@@ -124,8 +110,7 @@ void LottieAnimation::_fix_alpha_border_rgba(uint8_t *rgba, int w, int h) {
     for (int y = 1; y < h-1; ++y) {
         for (int x = 1; x < w-1; ++x) {
             uint8_t *px = at(x,y);
-            if (px[3] != 0) continue; // only fully transparent
-            // check 8 neighbors for any alpha > 0 and take the first RGB found
+            if (px[3] != 0) continue;
             bool copied = false;
             for (int dy = -1; dy <= 1 && !copied; ++dy) {
                 for (int dx = -1; dx <= 1 && !copied; ++dx) {
@@ -144,7 +129,6 @@ void LottieAnimation::_fix_alpha_border_rgba(uint8_t *rgba, int w, int h) {
     }
 }
 
-// Convert premultiplied-alpha RGBA to straight alpha in-place.
 void LottieAnimation::_unpremultiply_alpha_rgba(uint8_t *rgba, int w, int h) {
     if (!rgba || w <= 0 || h <= 0) return;
     const size_t pixels = (size_t)w * (size_t)h;
@@ -155,16 +139,13 @@ void LottieAnimation::_unpremultiply_alpha_rgba(uint8_t *rgba, int w, int h) {
             p[0] = p[1] = p[2] = 0;
             continue;
         }
-        if (a == 255) continue; // already straight
-        // integer unpremultiply with rounding
+        if (a == 255) continue;
         p[0] = (uint8_t)std::min(255, (int)((int)p[0] * 255 + (a / 2)) / (int)a);
         p[1] = (uint8_t)std::min(255, (int)((int)p[1] * 255 + (a / 2)) / (int)a);
         p[2] = (uint8_t)std::min(255, (int)((int)p[2] * 255 + (a / 2)) / (int)a);
     }
 }
 
-// Mirror a file from res:// (possibly inside PCK) to user:// so it exists as a real path for
-// libraries that require filesystem access (not Godot VFS). Returns user:// path or empty on failure.
 static String _mirror_file_to_user_cache(const String &src_path) {
     if (src_path.is_empty()) return String();
     PackedByteArray bytes = FileAccess::get_file_as_bytes(src_path);
@@ -182,7 +163,6 @@ static String _mirror_file_to_user_cache(const String &src_path) {
     fo->close();
     return mirror_rel;
 }
-// Extract the entire .lottie zip preserving folder structure into a cache folder, then return a project path to the chosen JSON.
 static String _extract_lottie_json_to_cache(const String &zip_path, const String &preferred_entry = String()) {
     Ref<ZIPReader> zr;
     zr.instantiate();
@@ -209,7 +189,6 @@ static String _extract_lottie_json_to_cache(const String &zip_path, const String
     }
 
     PackedStringArray files = zr->get_files();
-    // Prepare cache root: user://lottie_cache/<hash>/
     const String cache_root = String("user://lottie_cache");
     String abs_cache_root = ProjectSettings::get_singleton()->globalize_path(cache_root);
     DirAccess::make_dir_recursive_absolute(abs_cache_root);
@@ -218,7 +197,6 @@ static String _extract_lottie_json_to_cache(const String &zip_path, const String
     String abs_cache_dir = ProjectSettings::get_singleton()->globalize_path(cache_dir);
     DirAccess::make_dir_recursive_absolute(abs_cache_dir);
 
-    // Decide which JSON we want
     String json_inside;
     auto file_exists_in_zip = [&](const String &p){ for (int i=0;i<files.size();++i){ if (files[i]==p) return true; } return false; };
     if (!preferred_entry.is_empty()) {
@@ -235,15 +213,12 @@ static String _extract_lottie_json_to_cache(const String &zip_path, const String
             }
         }
     }
-    // Fallback: prefer animations/*.json, then data.json, then any JSON except manifest.json
     if (json_inside.is_empty()) {
-        // 1) Look for animations folder entries first
         for (int i = 0; i < files.size(); i++) {
             String f = files[i];
             String lf = f.to_lower();
             if (lf.ends_with(".json") && lf.begins_with("animations/")) { json_inside = f; break; }
         }
-        // 2) data.json
         if (json_inside.is_empty()) {
             for (int i = 0; i < files.size(); i++) {
                 String f = files[i];
@@ -251,7 +226,6 @@ static String _extract_lottie_json_to_cache(const String &zip_path, const String
                 if (lf.ends_with("/data.json") || lf == "data.json") { json_inside = f; break; }
             }
         }
-        // 3) First JSON that's not manifest.json
         if (json_inside.is_empty()) {
             for (int i = 0; i < files.size(); i++) {
                 String f = files[i];
@@ -301,9 +275,8 @@ static String _extract_lottie_json_to_cache(const String &zip_path, const String
     return out_path;
 }
 
-// --------- Global lightweight registry for live cache activation ---------
 #include <unordered_map>
-static std::unordered_map<std::string, int> g_anim_usage_counts; // animation_key -> instance count
+static std::unordered_map<std::string, int> g_anim_usage_counts;
 static inline void _registry_inc(const String &key) {
     if (key.is_empty()) return;
     g_anim_usage_counts[std::string(key.utf8().get_data())] += 1;
@@ -320,7 +293,6 @@ static inline int _registry_get(const String &key) {
     return it == g_anim_usage_counts.end() ? 0 : it->second;
 }
 
-// --- dotLottie manifest parsing and dynamic inspector props ---
 void LottieAnimation::_parse_dotlottie_manifest(const String &zip_path) {
     last_lottie_zip_path = zip_path;
     sm_animation_ids.clear();
@@ -517,7 +489,6 @@ void LottieAnimation::_parse_dotlottie_manifest(const String &zip_path) {
             Dictionary segs;
             out = parse_states_json_text(text2, segs);
             if (!out.is_empty()) {
-                UtilityFunctions::print(String("dotLottie: Loaded states for '") + machine_name + String("' from ") + candidate_path);
                 sm_state_segments_by_machine[machine_name] = segs;
             }
         } else {
@@ -540,7 +511,6 @@ void LottieAnimation::_parse_dotlottie_manifest(const String &zip_path) {
     PackedStringArray sts;
     if (sm_states_by_machine.has(active_state_machine)) sts = (PackedStringArray)sm_states_by_machine[active_state_machine];
     if (active_state.is_empty() && sts.size() > 0) active_state = sts[0];
-    UtilityFunctions::print("dotLottie manifest: animations=" + String::num(sm_animation_ids.size()) + ", machines=" + String::num(sm_machine_names.size()) + ", states_for_active=" + String::num((int)(sm_states_by_machine.has(active_state_machine) ? ((PackedStringArray)sm_states_by_machine[active_state_machine]).size() : 0)));
     notify_property_list_changed();
 }
 
@@ -772,17 +742,15 @@ void LottieAnimation::_initialize_thorvg() {
         thorvg_initialized = true;
     }
     
-    tvg::EngineOption render_opt = tvg::EngineOption::SmartRender;
-    if (engine_option == 0) render_opt = tvg::EngineOption::Default;
+    tvg::EngineOption render_opt = tvg::EngineOption::Default;
+    if (engine_option == 1) render_opt = tvg::EngineOption::SmartRender;
     
     canvas = tvg::SwCanvas::gen(render_opt);
     if (!canvas) {
-        UtilityFunctions::printerr("Failed to create optimized ThorVG canvas");
+        UtilityFunctions::printerr("Failed to create ThorVG canvas");
         return;
     }
     
-    UtilityFunctions::print("ThorVG canvas created with optimization: ", 
-        (render_opt == tvg::EngineOption::SmartRender ? "SmartRender (High Performance)" : "Default"));
     _allocate_buffer_and_target(render_size);
     // Only start worker when enabled (never on Web by default)
     _start_worker_if_needed();
@@ -854,8 +822,7 @@ bool LottieAnimation::_load_animation(const String& path) {
             emit_signal("animation_loaded", false);
             return false;
         }
-        source_path = extracted; // user:// path to extracted JSON
-        UtilityFunctions::print("Extracted .lottie to: " + source_path);
+        source_path = extracted;
     }
 
     // Try direct load; if it fails (e.g., file is inside the PCK on Web), mirror to user:// and retry.
@@ -1188,11 +1155,8 @@ void LottieAnimation::_notification(int32_t p_what) {
     }
 }
 
-// ---------- New helpers for sizing / dynamic resolution ----------
-
 void LottieAnimation::_allocate_buffer_and_target(const Vector2i &size) {
     if (size.x <= 0 || size.y <= 0) return;
-    // Preserve previous texture so we can keep drawing it until a new frame is rendered
     Ref<ImageTexture> old_texture = texture;
     Ref<Image> old_image = image;
     Vector2i old_render_size = render_size;
@@ -1201,7 +1165,7 @@ void LottieAnimation::_allocate_buffer_and_target(const Vector2i &size) {
     render_size = Vector2i(std::min(size.x, max_render_size.x), std::min(size.y, max_render_size.y));
     buffer = new uint32_t[(size_t)render_size.x * (size_t)render_size.y];
     memset(buffer, 0, (size_t)render_size.x * (size_t)render_size.y * sizeof(uint32_t));
-    canvas->target(buffer, render_size.x, render_size.x, render_size.y, tvg::ColorSpace::ARGB8888);
+    canvas->target(buffer, render_size.x, render_size.x, render_size.y, tvg::ColorSpace::ARGB8888S);
     pixel_bytes.resize((int64_t)render_size.x * (int64_t)render_size.y * 4);
     _create_texture();
 
@@ -1243,7 +1207,6 @@ void LottieAnimation::_apply_picture_transform_to_fit() {
     picture->transform(m);
 }
 
-// Resolve marker name for the current machine/state: prefer explicit segment; fallback to state name
 String LottieAnimation::_current_state_segment_marker() const {
     if (active_state.is_empty()) return String();
     if (sm_state_segments_by_machine.has(active_state_machine)) {
@@ -1255,7 +1218,6 @@ String LottieAnimation::_current_state_segment_marker() const {
     return active_state;
 }
 
-// Parse the Lottie JSON at json_path and compute begin/end frame for a marker name.
 bool LottieAnimation::_find_marker_range(const String &json_path, const String &marker, float &out_begin, float &out_end) const {
     out_begin = 0.0f; out_end = 0.0f;
     if (json_path.is_empty() || marker.is_empty()) return false;
@@ -1359,8 +1321,6 @@ void LottieAnimation::_on_viewport_size_changed() {
     last_visible_on_screen = false;
 }
 
-// --------- setters/getters ---------
-
 void LottieAnimation::set_use_animation_size(bool p_enable) {
     if (use_animation_size == p_enable) return;
     use_animation_size = p_enable;
@@ -1428,10 +1388,9 @@ void LottieAnimation::set_live_cache_force(bool p_force) { live_cache_force = p_
 bool LottieAnimation::get_live_cache_force() const { return live_cache_force; }
 void LottieAnimation::set_culling_mode(int p_mode) { /* culling disabled */ }
 int LottieAnimation::get_culling_mode() const { return 2; }
-void LottieAnimation::set_culling_margin_px(float p_margin) { /* culling disabled */ }
+void LottieAnimation::set_culling_margin_px(float p_margin) { }
 float LottieAnimation::get_culling_margin_px() const { return 0.0f; }
 
-// Animation control methods
 void LottieAnimation::play() {
     if (!animation) {
         if (!animation_path.is_empty()) {
@@ -1468,7 +1427,6 @@ float LottieAnimation::get_frame() const {
     return current_frame;
 }
 
-// Property implementations
 void LottieAnimation::set_animation_path(const String& path) {
     if (animation_path != path) {
         animation_path = path;
@@ -1596,8 +1554,6 @@ float LottieAnimation::get_total_frames() const {
     return total_frames;
 }
 
-// ---------------- Worker-threaded rendering -----------------
-
 void LottieAnimation::_start_worker_if_needed() {
     if (!render_thread_enabled || render_thread.joinable()) return;
     worker_stop = false;
@@ -1617,9 +1573,7 @@ void LottieAnimation::_stop_worker() {
     _worker_free_resources();
 }
 
-// ----------------- Helpers -------------------
 bool LottieAnimation::_is_visible_on_screen() const {
-    // Be conservative: if we can't determine, return true so we don't starve updates.
     if (!is_inside_tree() || !get_viewport()) return true;
 
     if (culling_mode == 2) {
@@ -1742,7 +1696,7 @@ void LottieAnimation::_worker_apply_target_if_needed(const Vector2i &size) {
     w_render_size = size;
     w_buffer = new uint32_t[(size_t)size.x * (size_t)size.y];
     memset(w_buffer, 0, (size_t)size.x * (size_t)size.y * sizeof(uint32_t));
-    w_canvas->target(w_buffer, size.x, size.x, size.y, tvg::ColorSpace::ARGB8888);
+    w_canvas->target(w_buffer, size.x, size.x, size.y, tvg::ColorSpace::ARGB8888S);
     // Fit transform will be recomputed below
 }
 
@@ -1761,17 +1715,15 @@ void LottieAnimation::_worker_apply_fit_transform() {
 }
 
 void LottieAnimation::_worker_loop() {
-    tvg::EngineOption worker_opt = tvg::EngineOption::SmartRender;
-    if (engine_option == 0) worker_opt = tvg::EngineOption::Default;
+    tvg::EngineOption worker_opt = tvg::EngineOption::Default;
+    if (engine_option == 1) worker_opt = tvg::EngineOption::SmartRender;
     
     w_canvas = tvg::SwCanvas::gen(worker_opt);
     if (!w_canvas) {
-        UtilityFunctions::printerr("Worker: Failed to create optimized ThorVG canvas");
+        UtilityFunctions::printerr("Worker: Failed to create ThorVG canvas");
         return;
     }
     
-    UtilityFunctions::print("Worker canvas created with optimization: ", 
-        (worker_opt == tvg::EngineOption::SmartRender ? "SmartRender" : "Default"));
     while (true) {
         {
             std::unique_lock<std::mutex> lk(job_mutex);
@@ -1870,7 +1822,6 @@ void LottieAnimation::_worker_loop() {
     }
 }
 
-// Offset property setters/getters for YSort pivot control
 void LottieAnimation::set_offset(const Vector2 &p_offset) {
     offset = p_offset;
     queue_redraw();

@@ -5,10 +5,6 @@
 
 using namespace godot;
 
-// ============================================================================
-// LottieAnimationState Implementation
-// ============================================================================
-
 void LottieAnimationState::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_state_name", "name"), &LottieAnimationState::set_state_name);
     ClassDB::bind_method(D_METHOD("get_state_name"), &LottieAnimationState::get_state_name);
@@ -85,10 +81,6 @@ void LottieAnimationState::set_blend_time(float time) {
 float LottieAnimationState::get_blend_time() const {
     return blend_time;
 }
-
-// ============================================================================
-// LottieStateTransition Implementation
-// ============================================================================
 
 void LottieStateTransition::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_from_state", "state"), &LottieStateTransition::set_from_state);
@@ -217,38 +209,29 @@ bool LottieStateTransition::evaluate_condition(const Dictionary& parameters) con
     return false;
 }
 
-// ============================================================================
-// LottieStateMachine Implementation
-// ============================================================================
-
 void LottieStateMachine::_bind_methods() {
-    // State management
     ClassDB::bind_method(D_METHOD("add_state", "state"), &LottieStateMachine::add_state);
     ClassDB::bind_method(D_METHOD("remove_state", "state_name"), &LottieStateMachine::remove_state);
     ClassDB::bind_method(D_METHOD("get_state", "state_name"), &LottieStateMachine::get_state);
     ClassDB::bind_method(D_METHOD("get_all_states"), &LottieStateMachine::get_all_states);
     ClassDB::bind_method(D_METHOD("get_state_count"), &LottieStateMachine::get_state_count);
 
-    // Transition management
     ClassDB::bind_method(D_METHOD("add_transition", "transition"), &LottieStateMachine::add_transition);
     ClassDB::bind_method(D_METHOD("remove_transition", "from_state", "to_state"), &LottieStateMachine::remove_transition);
     ClassDB::bind_method(D_METHOD("get_all_transitions"), &LottieStateMachine::get_all_transitions);
     ClassDB::bind_method(D_METHOD("get_transition_count"), &LottieStateMachine::get_transition_count);
 
-    // State control
     ClassDB::bind_method(D_METHOD("set_current_state", "state_name"), &LottieStateMachine::set_current_state);
     ClassDB::bind_method(D_METHOD("get_current_state"), &LottieStateMachine::get_current_state);
 
     ClassDB::bind_method(D_METHOD("set_default_state", "state_name"), &LottieStateMachine::set_default_state);
     ClassDB::bind_method(D_METHOD("get_default_state"), &LottieStateMachine::get_default_state);
 
-    // Parameter management
     ClassDB::bind_method(D_METHOD("set_parameter", "param_name", "value"), &LottieStateMachine::set_parameter);
     ClassDB::bind_method(D_METHOD("get_parameter", "param_name"), &LottieStateMachine::get_parameter);
     ClassDB::bind_method(D_METHOD("get_all_parameters"), &LottieStateMachine::get_all_parameters);
     ClassDB::bind_method(D_METHOD("has_parameter", "param_name"), &LottieStateMachine::has_parameter);
 
-    // State machine control
     ClassDB::bind_method(D_METHOD("reset"), &LottieStateMachine::reset);
     ClassDB::bind_method(D_METHOD("is_in_blend"), &LottieStateMachine::is_in_blend);
     ClassDB::bind_method(D_METHOD("get_blend_progress"), &LottieStateMachine::get_blend_progress);
@@ -258,7 +241,6 @@ void LottieStateMachine::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_state"), "set_current_state", "get_current_state");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "default_state"), "set_default_state", "get_default_state");
 
-    // Signals
     ADD_SIGNAL(MethodInfo("state_changed", PropertyInfo(Variant::STRING, "from_state"), PropertyInfo(Variant::STRING, "to_state")));
     ADD_SIGNAL(MethodInfo("transition_started", PropertyInfo(Variant::STRING, "from_state"), PropertyInfo(Variant::STRING, "to_state")));
     ADD_SIGNAL(MethodInfo("transition_finished", PropertyInfo(Variant::STRING, "to_state")));
@@ -408,18 +390,15 @@ void LottieStateMachine::update(float delta, LottieAnimation* animation_node) {
         return;
     }
 
-    // Check for valid transitions
     Array valid_transitions = _find_valid_transitions();
     
     if (valid_transitions.size() > 0) {
-        // Take the first valid transition
         Ref<LottieStateTransition> transition = valid_transitions[0];
         if (transition.is_valid()) {
             String new_state = transition->get_to_state();
             Ref<LottieAnimationState> state = _find_state(new_state);
             
             if (state.is_valid()) {
-                // Start transition
                 blend_from_state = current_state;
                 blend_to_state = new_state;
                 is_blending = true;
@@ -427,7 +406,6 @@ void LottieStateMachine::update(float delta, LottieAnimation* animation_node) {
                 
                 emit_signal("transition_started", current_state, new_state);
                 
-                // Update animation
                 animation_node->set_animation_path(state->get_animation_path());
                 animation_node->set_looping(state->get_loop());
                 animation_node->set_speed(state->get_speed());
@@ -438,7 +416,6 @@ void LottieStateMachine::update(float delta, LottieAnimation* animation_node) {
         }
     }
 
-    // Update blend progress
     if (is_blending) {
         Ref<LottieAnimationState> state = _find_state(current_state);
         if (state.is_valid()) {

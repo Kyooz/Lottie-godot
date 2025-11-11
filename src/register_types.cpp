@@ -26,7 +26,6 @@ void uninitialize_godot_lottie_module(ModuleInitializationLevel p_level) {
 }
 
 extern "C" {
-    // Initialization
     GDExtensionBool GDE_EXPORT godot_lottie_library_init(
         GDExtensionInterfaceGetProcAddress p_get_proc_address,
         const GDExtensionClassLibraryPtr p_library,

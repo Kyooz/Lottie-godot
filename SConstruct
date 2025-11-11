@@ -7,6 +7,7 @@ Builds optimized Lottie animation extension for Godot Engine
 
 import os
 import sys
+import shutil
 
 env = SConscript("thirdparty/godot-cpp/SConstruct")
 
@@ -77,3 +78,32 @@ else:
     )
 
 Default(library)
+
+# Copy ThorVG runtime DLL on Windows (Linux/macOS use static linking)
+if env["platform"] == "windows":
+    thorvg_runtime_dir = thorvg_lib_dir if 'thorvg_lib_dir' in locals() else os.path.join("thirdparty", "thorvg", "builddir", "src")
+    thorvg_runtime = os.path.join(thorvg_runtime_dir, "thorvg-1.dll")
+    dest_dir = os.path.join("demo", "addons", "godot_lottie", "bin")
+    dest_dll = os.path.join(dest_dir, "thorvg-1.dll")
+
+    if os.path.isfile(thorvg_runtime):
+        def _copy_thorvg_dll(target, source, env):
+            try:
+                if not os.path.isdir(dest_dir):
+                    os.makedirs(dest_dir, exist_ok=True)
+                shutil.copy2(thorvg_runtime, dest_dll)
+                print("Copied ThorVG runtime to {}".format(dest_dll))
+            except Exception as e:
+                print("Warning: Failed to copy ThorVG runtime DLL: {}".format(e))
+
+        try:
+            env.AddPostAction(library, _copy_thorvg_dll)
+        except Exception:
+            # Fallback: immediate copy
+            try:
+                if not os.path.isdir(dest_dir):
+                    os.makedirs(dest_dir, exist_ok=True)
+                shutil.copy2(thorvg_runtime, dest_dll)
+                print("Copied ThorVG runtime to {} (fallback)".format(dest_dll))
+            except Exception as e:
+                print("Warning: Could not copy ThorVG runtime: {}".format(e))

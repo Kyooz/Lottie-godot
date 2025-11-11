@@ -8,10 +8,8 @@
 
 namespace godot {
 
-// Forward declaration
 class LottieAnimation;
 
-// State class representing a single animation state
 class LottieAnimationState : public Resource {
     GDCLASS(LottieAnimationState, Resource)
 
@@ -45,7 +43,6 @@ public:
     float get_blend_time() const;
 };
 
-// Transition class representing a transition between states
 class LottieStateTransition : public Resource {
     GDCLASS(LottieStateTransition, Resource)
 
@@ -54,7 +51,7 @@ private:
     String to_state;
     String condition_parameter;
     Variant condition_value;
-    String condition_mode; // "equals", "greater", "less", "not_equals"
+    String condition_mode;
     float transition_time;
     bool auto_advance;
 
@@ -89,13 +86,12 @@ public:
     bool evaluate_condition(const Dictionary& parameters) const;
 };
 
-// Main state machine class
 class LottieStateMachine : public Resource {
     GDCLASS(LottieStateMachine, Resource)
 
 private:
-    Array states; // Array of LottieAnimationState
-    Array transitions; // Array of LottieStateTransition
+    Array states;
+    Array transitions;
     String current_state;
     String default_state;
     Dictionary parameters;
@@ -152,4 +148,4 @@ public:
 
 }
 
-#endif // LOTTIE_STATE_MACHINE_H
+#endif

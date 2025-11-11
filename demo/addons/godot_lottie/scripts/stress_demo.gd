@@ -11,8 +11,8 @@ const ZOOM_MIN := 1.0
 const ZOOM_MAX := 5.0
 
 # Inspector-configurable options
-@export var initial_spawn: int = 0
-@export var spawn_batch_count: int = 50
+@export var initial_spawn: int = 50
+@export var spawn_batch_count: int = 3
 @export var spawn_random_in_view: bool = true
 
 func _ready() -> void:
