@@ -20,7 +20,7 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-if ! python3 -m meson --version &> /dev/null; then
+if ! meson --version &> /dev/null; then
     echo "ERROR: Meson build system not found"
     echo
     echo "To install:"
@@ -33,7 +33,7 @@ if ! python3 -m meson --version &> /dev/null; then
     exit 1
 fi
 
-MESON_VERSION=$(python3 -m meson --version)
+MESON_VERSION=$(meson --version)
 echo "Build tools verified:"
 echo "  Python: $(python3 --version 2>&1)"
 echo "  Meson: $MESON_VERSION"
@@ -62,13 +62,24 @@ echo
 
 # Configure build with optimal settings for Lottie rendering
 echo "Configuring ThorVG build with optimizations..."
-python3 -m meson setup builddir \
+
+# Detect platform and set threads configuration
+# ARM Mac requires threads=false for compatibility
+if [ "$(uname)" == "Darwin" ] && [ "$(uname -m)" == "arm64" ]; then
+    THREADS_OPTION="-Dthreads=false"
+    echo "ARM Mac detected: Setting threads=false"
+else
+    THREADS_OPTION="-Dthreads=true"
+    echo "Non-ARM platform: Setting threads=true"
+fi
+
+meson setup builddir \
     -Dbuildtype=release \
     -Doptimization=3 \
     -Db_ndebug=true \
     -Ddefault_library=static \
     -Dsimd=true \
-    -Dthreads=true \
+    $THREADS_OPTION \
     -Dpartial=true \
     -Dengines=sw \
     -Dloaders=lottie \
@@ -87,7 +98,7 @@ fi
 # Build with all available CPU cores
 echo
 echo "Building ThorVG using $CORES parallel jobs..."
-python3 -m meson compile -C builddir -j $CORES
+meson compile -C builddir -j $CORES
 
 if [ $? -ne 0 ]; then
     echo
@@ -112,5 +123,5 @@ echo "  ✓ Static linking: No runtime dependencies"
 echo "========================================"
 echo
 echo "Next step: Build Godot extension with SCons"
-echo "  python3 -m SCons platform=linux target=template_release  # Linux"
-echo "  python3 -m SCons platform=macos target=template_release  # macOS"
+echo "  SCons platform=linux target=template_release  # Linux"
+echo "  SCons platform=macos target=template_release  # macOS"
