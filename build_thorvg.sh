@@ -62,13 +62,24 @@ echo
 
 # Configure build with optimal settings for Lottie rendering
 echo "Configuring ThorVG build with optimizations..."
+
+# Detect platform and set threads configuration
+# ARM Mac requires threads=false for compatibility
+if [ "$(uname)" == "Darwin" ] && [ "$(uname -m)" == "arm64" ]; then
+    THREADS_OPTION="-Dthreads=false"
+    echo "ARM Mac detected: Setting threads=false"
+else
+    THREADS_OPTION="-Dthreads=true"
+    echo "Non-ARM platform: Setting threads=true"
+fi
+
 meson setup builddir \
     -Dbuildtype=release \
     -Doptimization=3 \
     -Db_ndebug=true \
     -Ddefault_library=static \
     -Dsimd=true \
-    -Dthreads=true \
+    $THREADS_OPTION \
     -Dpartial=true \
     -Dengines=sw \
     -Dloaders=lottie \
